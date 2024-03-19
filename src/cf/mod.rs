@@ -86,8 +86,8 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
         &RequestInit {
             headers: {
                 let mut headers = req.headers().clone();
-                for name in BAD_REQUEST_HEADERS {
-                    let _ = headers.delete(name);
+                for (name, _) in &crate::BAD_REQUEST_HEADERS {
+                    _ = headers.delete(name);
                 }
                 headers
             },
@@ -97,13 +97,9 @@ pub async fn main(req: Request, env: Env, _ctx: worker::Context) -> Result<Respo
     .send()
     .await?;
 
-    for name in BAD_RESPONSE_HEADERS {
-        let _ = resp.headers_mut().delete(name);
+    for (name, _) in &crate::BAD_RESPONSE_HEADERS {
+        _ = resp.headers_mut().delete(name);
     }
 
     Ok(resp)
 }
-
-const BAD_REQUEST_HEADERS: &[&str] = &["host", "cookie", "referer"];
-
-const BAD_RESPONSE_HEADERS: &[&str] = &["set-cookie"];

@@ -1,5 +1,10 @@
+extern crate camo_worker;
+
 use futures_util::FutureExt;
-use reqwest::{header::HeaderName, Client};
+use reqwest::{
+    header::{HeaderName, HeaderValue},
+    Client,
+};
 
 use axum::{
     body::Body,
@@ -27,8 +32,7 @@ async fn main() {
             let hex_key = std::env::var("CAMO_SIGNING_KEY").expect("CAMO_SIGNING_KEY not found");
             let mut raw_key = Key::<Hmac>::default();
             // keys are allowed to be shorter than the entire raw key. Will be padded internally.
-            hex::decode_to_slice(&hex_key, &mut raw_key[..hex_key.len() / 2])
-                .expect("Could not parse signing key!");
+            hex::decode_to_slice(&hex_key, &mut raw_key[..hex_key.len() / 2]).expect("Could not parse signing key!");
 
             raw_key
         },
@@ -98,20 +102,15 @@ async fn root(State(state): State<Arc<CamoState>>, req: Request<Body>) -> impl I
     Ok(proxy(&state.client, &url, req).await)
 }
 
-const BAD_REQUEST_HEADERS: [HeaderName; 3] = [
-    HeaderName::from_static("host"),
-    HeaderName::from_static("cookie"),
-    HeaderName::from_static("referer"),
-];
-
-const BAD_RESPONSE_HEADERS: [HeaderName; 1] = [HeaderName::from_static("set-cookie")];
-
 async fn proxy(client: &Client, url: &str, mut req: Request<Body>) -> impl IntoResponse {
     let mut headers = std::mem::take(req.headers_mut());
 
-    for name in &BAD_REQUEST_HEADERS {
+    for (_, name) in &camo_worker::BAD_REQUEST_HEADERS {
         headers.remove(name);
     }
+
+    // force DNT header, despite it being deprecated
+    headers.insert(HeaderName::from_static("dnt"), HeaderValue::from_static("1"));
 
     match client.get(url).headers(headers).send().await {
         Err(e) => {
@@ -124,14 +123,12 @@ async fn proxy(client: &Client, url: &str, mut req: Request<Body>) -> impl IntoR
             (code, HeaderMap::new(), Err(()))
         }
         Ok(mut resp) => {
-            let status = resp.status();
             let mut headers = std::mem::take(resp.headers_mut());
-
-            for name in &BAD_RESPONSE_HEADERS {
+            for (_, name) in &camo_worker::BAD_RESPONSE_HEADERS {
                 headers.remove(name);
             }
 
-            (status, headers, Ok(Response::new(reqwest::Body::from(resp))))
+            (resp.status(), headers, Ok(Response::new(reqwest::Body::from(resp))))
         }
     }
 }
