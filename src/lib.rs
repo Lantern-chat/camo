@@ -1,3 +1,30 @@
+//! Camo Proxy
+//!
+//! Example signature generation:
+//! ```
+//! # fn main() {
+//! use base64::engine::{general_purpose::URL_SAFE_NO_PAD, Engine};
+//!
+//! use hmac::{digest::Key, Mac};
+//! pub type Hmac = hmac::SimpleHmac<sha1::Sha1>;
+//!
+//! // Encode the HMAC-SHA1 digest of the value using the key.
+//! pub fn generate_signature(value: &str, key: &Key<Hmac>) -> String {
+//!     URL_SAFE_NO_PAD.encode(Hmac::new(key).chain_update(value).finalize().into_bytes())
+//! }
+//!
+//! let key = "59d273a2641327d005b255bb7dc89a9f";
+//! let url = "https://raw.githubusercontent.com/Lantern-chat/server/master/Cargo.toml";
+//!
+//! let mut raw_key = Key::<Hmac>::default();
+//! // keys are allowed to be shorter than the entire raw key. Will be padded internally.
+//! hex::decode_to_slice(key, &mut raw_key[..key.len() / 2]).unwrap();
+//!
+//! let path = format!("/camo/{}/{}", URL_SAFE_NO_PAD.encode(url), generate_signature(url, &raw_key));
+//! assert_eq!(path, "/camo/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0xhbnRlcm4tY2hhdC9zZXJ2ZXIvbWFzdGVyL0NhcmdvLnRvbWw/JvEspwk6jNaE6SpGG2r861A6reM");
+//! # }
+//! ````
+
 #[cfg(feature = "cf")]
 pub mod cf;
 
@@ -48,9 +75,6 @@ decl_headers! {
         "location",
         "set-cookie",
         "set-cookie2",
-        "x-powered-by",
-        "x-aspnet-version",
-        "x-aspnetmvc-version",
         "vary",
     ];
 }

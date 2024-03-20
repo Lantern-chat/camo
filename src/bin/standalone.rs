@@ -1,4 +1,4 @@
-extern crate camo_worker;
+extern crate camo_proxy;
 
 use futures_util::FutureExt;
 use reqwest::{
@@ -38,9 +38,6 @@ async fn main() {
         },
 
         client: reqwest::ClientBuilder::new()
-            .no_gzip()
-            .no_deflate()
-            .no_brotli()
             .redirect(reqwest::redirect::Policy::limited(1))
             .connect_timeout(std::time::Duration::from_secs(10))
             .danger_accept_invalid_certs(false)
@@ -105,7 +102,7 @@ async fn root(State(state): State<Arc<CamoState>>, req: Request<Body>) -> impl I
 async fn proxy(client: &Client, url: &str, mut req: Request<Body>) -> impl IntoResponse {
     let mut headers = std::mem::take(req.headers_mut());
 
-    for (_, name) in &camo_worker::BAD_REQUEST_HEADERS {
+    for (_, name) in &camo_proxy::BAD_REQUEST_HEADERS {
         headers.remove(name);
     }
 
@@ -124,7 +121,7 @@ async fn proxy(client: &Client, url: &str, mut req: Request<Body>) -> impl IntoR
         }
         Ok(mut resp) => {
             let mut headers = std::mem::take(resp.headers_mut());
-            for (_, name) in &camo_worker::BAD_RESPONSE_HEADERS {
+            for (_, name) in &camo_proxy::BAD_RESPONSE_HEADERS {
                 headers.remove(name);
             }
 
