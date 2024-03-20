@@ -13,8 +13,7 @@ The server is designed to be used as a privacy and security layer for image requ
 as it removes cookies and other sensitive information from the request and response headers.
 
 Example path generation:
-```
-# fn main() {
+```rust
 use base64::engine::{general_purpose::URL_SAFE_NO_PAD, Engine};
 
 use hmac::{digest::Key, Mac};
@@ -30,7 +29,6 @@ hex::decode_to_slice(key, &mut decoded_key[..key.len() / 2]).unwrap();
 let signature = URL_SAFE_NO_PAD.encode(Hmac::new(&decoded_key).chain_update(url).finalize().into_bytes());
 let path = format!("/camo/{}/{}", URL_SAFE_NO_PAD.encode(url), signature);
 assert_eq!(path, "/camo/aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL0xhbnRlcm4tY2hhdC9zZXJ2ZXIvbWFzdGVyL0NhcmdvLnRvbWw/JvEspwk6jNaE6SpGG2r861A6reM");
-# }
 ````
 
 Run your camo proxy instance somewhere and request
