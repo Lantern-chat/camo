@@ -10,17 +10,18 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["cf", "standalone"]
 cf = ["dep:worker", "console_error_panic_hook"]
-standalone = ["reqwest", "tokio", "axum", "dotenv"]
+standalone = ["reqwest", "tokio", "ftl", "dotenv", "http-body-util"]
 
 [dependencies]
 # keep in sync with WORKERS_RS_VERSION in wrangler.toml
-worker = { version = "0.0.21", optional = true }
+worker = { version = "0.5", optional = true }
 console_error_panic_hook = { version = "0.1.1", optional = true }
 
 tokio = { version = "1", optional = true, features = ["full"] }
-axum = { version = "0.7", optional = true, features = ["http2"] }
+ftl = { optional = true, git = "https://github.com/Lantern-chat/ftl2", default-features = false, features = ["json"] }
 dotenv = { version = "0.15", optional = true }
 reqwest = { version = "0.12", optional = true, default_features = false, features = ["rustls-tls", "http2", "json"] }
+http-body-util = { version = "0.1.2", optional = true }
 
 cfg-if = "1"
 serde_json = "1.0.67"
