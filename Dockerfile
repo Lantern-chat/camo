@@ -8,7 +8,7 @@ COPY ./ /home/rust/src
 RUN --mount=type=cache,target=/home/rust/src/target \
     --mount=type=cache,target=/root/.cargo/registry \
     --mount=type=cache,target=/root/.cargo/git \
-    cargo build --release --no-default-features --features "standalone" --bin standalone && \
+    cargo build --release --no-default-features --features 'standalone' --bin standalone && \
     mv /home/rust/src/target/x86_64-unknown-linux-musl/release/standalone /standalone
 
 FROM scratch
