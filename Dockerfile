@@ -22,7 +22,8 @@ USER 1001:1001
 COPY --from=build /standalone /standalone
 
 ENV CAMO_BIND_ADDRESS="127.0.0.1:8050"
-ENV CAMO_SIGNING_KEY="59d273a2641327d005b255bb7dc89a9f" # Example key, replace with your own
+# Example key, replace with your own
+ENV CAMO_SIGNING_KEY="59d273a2641327d005b255bb7dc89a9f"
 
 EXPOSE 8050/tcp
 
