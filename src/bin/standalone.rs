@@ -77,7 +77,7 @@ async fn main() {
         use ftl::serve::accept::{NoDelayAcceptor, PeekingAcceptor, TimeoutAcceptor};
 
         let acceptor = TimeoutAcceptor::new(
-            // 10 second timeout for the entire connection accept process
+            // 4 second timeout for the entire connection accept process
             Duration::from_secs(4),
             // TCP_NODELAY, and peek at the first byte of the stream
             PeekingAcceptor(NoDelayAcceptor),
