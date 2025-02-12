@@ -34,7 +34,7 @@ sha1 = "0.10.5"
 hex = "0.4.3"
 
 [[bin]]
-name = "camo2"
+name = "camo-proxy"
 path = "src/bin/standalone.rs"
 required-features = ["standalone"]
 
